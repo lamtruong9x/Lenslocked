@@ -2,27 +2,29 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"lenslocked.com/views"
 )
 
 //Global homeTemplate varibale
-var homeTemplate 	*template.Template
-var contactTemplate *template.Template
+var homeView 	*views.View
+var contactView *views.View
 
 // Handle home "/" path
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := homeTemplate.Execute(w, nil); err != nil {
+	if err := homeView.Template.Execute(w, nil); err != nil {
 		panic(err)
 	}
 }
 // Handle contact path "/contact"
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	
+	if err := contactView.Template.Execute(w, nil); err != nil {
+		panic(err)
+	}
 }
 func fqa(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
@@ -42,16 +44,10 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 
 // Using gorrilla/mux
 func main() {
-	var err error
-	homeTemplate, err = template.ParseFiles("views/home.gohtml")
-	if err!=nil {
-		panic(err)
-	}
+	homeView = views.NewView("views/home.gohtml")
 
-	contactTemplate, err = template.ParseFiles("views/contact.gohtml")
-	if err!=nil {
-		panic(err)
-	}
+	contactView = views.NewView("views/contact.gohtml")
+
 	// http.HandleFunc("/home", home)
 	// http.HandleFunc("/contact", contact)
 	// http.HandleFunc("/", notFound)
