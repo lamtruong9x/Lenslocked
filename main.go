@@ -15,14 +15,14 @@ var contactView *views.View
 // Handle home "/" path
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := homeView.Template.Execute(w, nil); err != nil {
+	if err := homeView.Template.ExecuteTemplate(w, homeView.Layout, nil); err != nil {
 		panic(err)
 	}
 }
 // Handle contact path "/contact"
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := contactView.Template.Execute(w, nil); err != nil {
+	if err := contactView.Template.ExecuteTemplate(w, contactView.Layout, nil); err != nil {
 		panic(err)
 	}
 }
@@ -33,24 +33,16 @@ func fqa(w http.ResponseWriter, r *http.Request) {
 }
 // Handle every not defined path
 func notFound(w http.ResponseWriter, r *http.Request) {
-	// url := r.URL.Path 
-	// if url == "/" {
-	// 	home(w, r)
-	// } else {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintln(w, "<h1>Content not found</h1>")
-	//}
+	w.WriteHeader(http.StatusNotFound)
+	fmt.Fprintln(w, "<h1>Content not found</h1>")
 }
 
 // Using gorrilla/mux
 func main() {
-	homeView = views.NewView("views/home.gohtml")
+	homeView = views.NewView("bootstrap", "views/home.gohtml")
 
-	contactView = views.NewView("views/contact.gohtml")
+	contactView = views.NewView("bootstrap", "views/contact.gohtml")
 
-	// http.HandleFunc("/home", home)
-	// http.HandleFunc("/contact", contact)
-	// http.HandleFunc("/", notFound)
 	nF := http.HandlerFunc(notFound)
 	r := mux.NewRouter()
 	r.NotFoundHandler = nF
