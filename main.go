@@ -9,29 +9,42 @@ import (
 )
 
 //Global homeTemplate varibale
-var homeView 	*views.View
-var contactView *views.View
-var fqaView 	*views.View
+var (
+	homeView 	*views.View
+	contactView *views.View
+	fqaView 	*views.View
+	signupView	*views.View
+)
+
 // Handle home "/" path
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	must(homeView.Render(w, nil))
 }
+
 // Handle contact path "/contact"
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	must(contactView.Render(w, nil))
 }
+
 // Handle fqa path "/fqa"
 func fqa(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	must(fqaView.Render(w, nil))
 }
+
+func signup(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
+	must(signupView.Render(w, nil))
+}
+
 // Handle every not defined path
 func notFound(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 	fmt.Fprintln(w, "<h1>Content not found</h1>")
 }
+
 // A helper function that handle err
 func must(err error) {
 	if err != nil {
@@ -40,16 +53,19 @@ func must(err error) {
 }
 // Using gorrilla/mux
 func main() {
+	//Create new view
 	homeView = views.NewView("bootstrap", "views/home.gohtml")
 	fqaView = views.NewView("bootstrap", "views/fqa.gohtml")
 	contactView = views.NewView("bootstrap", "views/contact.gohtml")
-
+	signupView = views.NewView("bootstrap", "views/signup.gohtml")
+	//Routing
 	nF := http.HandlerFunc(notFound)
 	r := mux.NewRouter()
 	r.NotFoundHandler = nF
 	r.HandleFunc("/", home)
 	r.HandleFunc("/contact", contact)
 	r.HandleFunc("/fqa", fqa)
+	r.HandleFunc("/signup", signup)
 	http.ListenAndServe(":3000", r)
 }
 
