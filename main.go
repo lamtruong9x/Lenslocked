@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"lenslocked.com/controllers"
 	"lenslocked.com/views"
 )
 
@@ -13,7 +14,6 @@ var (
 	homeView 	*views.View
 	contactView *views.View
 	fqaView 	*views.View
-	signupView	*views.View
 )
 
 // Handle home "/" path
@@ -34,10 +34,10 @@ func fqa(w http.ResponseWriter, r *http.Request) {
 	must(fqaView.Render(w, nil))
 }
 
-func signup(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	must(signupView.Render(w, nil))
-}
+// func signup(w http.ResponseWriter, r *http.Request) {
+// 	w.Header().Set("Content-Type", "text/html")
+// 	must(signupView.Render(w, nil))
+// }
 
 // Handle every not defined path
 func notFound(w http.ResponseWriter, r *http.Request) {
@@ -54,18 +54,17 @@ func must(err error) {
 // Using gorrilla/mux
 func main() {
 	//Create new view
-	homeView = views.NewView("bootstrap", "views/home.gohtml")
-	fqaView = views.NewView("bootstrap", "views/fqa.gohtml")
-	contactView = views.NewView("bootstrap", "views/contact.gohtml")
-	signupView = views.NewView("bootstrap", "views/signup.gohtml")
+	staticC := controllers.NewStatic()
+	usersC := controllers.NewUser() 
 	//Routing
 	nF := http.HandlerFunc(notFound)
 	r := mux.NewRouter()
 	r.NotFoundHandler = nF
-	r.HandleFunc("/", home)
-	r.HandleFunc("/contact", contact)
-	r.HandleFunc("/fqa", fqa)
-	r.HandleFunc("/signup", signup)
+	r.Handle("/", staticC.Home).Methods("GET")
+	r.Handle("/contact", staticC.Contact).Methods("GET")
+	r.Handle("/fqa", staticC.Fqa).Methods("GET")
+	r.HandleFunc("/signup", usersC.New).Methods("GET")
+	r.HandleFunc("/signup", usersC.Create).Methods("POST")
 	http.ListenAndServe(":3000", r)
 }
 
